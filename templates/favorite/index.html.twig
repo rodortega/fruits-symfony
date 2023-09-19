@@ -1,0 +1,46 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    {{ parent() }}
+    <div class="container">
+
+        {# Favorites List #}
+        <h3 class="mb-3">My Favorites</h3>
+        <div class="card accordion accordion-flush mb-3">
+            {% for fruit in fruits %}
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#fruititem-{{fruit.id}}">
+                        {{ fruit.name }}
+                    </button>
+                    </h2>
+                    <div id="fruititem-{{fruit.id}}" class="accordion-collapse collapse">
+                        <div class="accordion-body">
+                            <ul class="list-unstyled">
+                                <li>Calories: {{ fruit.calories }}</li>
+                                <li>Carbohydrates: {{ fruit.carbohydrates }}</li>
+                                <li>Fat: {{ fruit.fat }}</li>
+                                <li>Sugar: {{ fruit.sugar }}</li>
+                                <li>Protein: {{ fruit.protein }}</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        {# Nutritional Facts Total #}
+        <h3 class="mb-3">Total Nutritional Facts:</h3>
+        <div class="card">
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li>Calories: {{ total_nutrition.calories }}</li>
+                    <li>Carbohydrates: {{ total_nutrition.carbohydrates }}</li>
+                    <li>Fat: {{ total_nutrition.fat }}</li>
+                    <li>Sugar: {{ total_nutrition.sugar }}</li>
+                    <li>Protein: {{ total_nutrition.protein }}</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+{% endblock %}

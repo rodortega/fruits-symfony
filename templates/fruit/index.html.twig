@@ -1,0 +1,115 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    {{ parent() }}
+    <div class="container">
+
+        {# Filter Form #}
+        <div class="card mb-3">
+            <div class="card-body bg-light">
+                <form action="{{ path('fruit_index') }}" method="GET">
+                    {{ form_start(form) }}
+                    <div class="form-group">
+                        {{ form_row(form.name, {
+                            'attr': {
+                                'value': filter ? filter.name : ''
+                            },
+                        }) }}
+                    </div>
+                    <div class="form-group">
+                        {{ form_row(form.family, {
+                            'attr': {
+                                'value': filter ? filter.family: ''
+                            },
+                        }) }}
+                    </div>
+                    <button type="submit" class="btn btn-primary">Filter</button>
+                    <a href="/" type="button" class="btn btn-default">Clear</a>
+                    {{ form_end(form) }}
+                </form>
+            </div>
+        </div>
+
+        {# Fruit List #}
+        <ul class="list-group mb-3">
+            {% for fruit in fruits %}
+                <li class="list-group-item">
+                    {% set isFavorite = fruit.isFavorite %}
+                    <button class="btn {% if isFavorite %}btn-success{% else %}btn-outline-success{% endif %} favorites me-3" data-id="{{ fruit.id }}">
+                        {% if isFavorite %}
+                            Remove from Favorites
+                        {% else %}
+                            Add to Favorites
+                        {% endif %}
+                    </button>
+                    {{ fruit.name }} <i> (Family: {{ fruit.family }}) </i>
+                </li>
+            {% endfor %}
+        </ul>
+
+        {# Pagination Links #}
+        <div class="pagination float-end">
+            {{ knp_pagination_render(fruits) }}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        $(document).ready(function() {
+            $(document).on('click', '.favorites', function() {
+                var fruit_id = $(this).data('id');
+                var button = $(this);
+
+                $.ajax({
+                    url: '{{ path('set_favorite') }}',
+                    method: 'POST',
+                    data: { fruit_id: fruit_id },
+                    beforeSend: function() {
+                        button.attr('disabled', true);
+                    },
+                    success: function(response) {
+                        createToast(response.success, response.message);
+                        if (response.success) {
+                            transformFavoritesButton(button);
+                        }
+                    },
+                    error: function() {
+                        alert('An error occurred while adding the fruit to favorites.');
+                    },
+                    complete: function() {
+                        button.attr('disabled', false);
+                    },
+                });
+            });
+
+            $(document).on('hidden.bs.toast', '.toast', function () {
+                $(this).remove();
+            });
+
+            function transformFavoritesButton(button) {
+                if (button.hasClass('btn-success')) {
+                    button.removeClass('btn-success').addClass('btn-outline-success');
+                    button.html('Add to Favorites');
+                } else {
+                    button.removeClass('btn-outline-success').addClass('btn-success');
+                    button.html('Remove from Favorites');
+                }
+            }
+
+            function createToast(success, message) {
+                var alert = $('.notification-template .toast').clone();
+
+                if (success) {
+                    alert.addClass('bg-success');
+                } else {
+                    alert.addClass('bg-danger');
+                }
+                alert.find('.toast-body').html(message);
+                alert.appendTo('#notification-container').toast('show');
+            }
+        });
+    </script>
+{% endblock %}
